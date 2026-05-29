@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}用户反馈 📝{% endblock %}
+{% block content %}
+<div class="feedback-container">
+    <div class="feedback-card">
+        <h1 class="feedback-title">📝 用户反馈</h1>
+        <p class="feedback-subtitle">有任何建议、想法或者遇到了问题？告诉我们吧！我们会认真阅读每一条反馈 💖</p>
+        <form method="POST" class="feedback-form">
+            <div class="form-group">
+                <label>标题</label>
+                <input type="text" name="title" class="form-input" placeholder="用一句话概括你的反馈～" required>
+            </div>
+            <div class="form-group">
+                <label>详细内容</label>
+                <textarea name="content" class="form-textarea" rows="6" placeholder="请详细描述你的建议、想法或遇到的问题..." required></textarea>
+            </div>
+            <button type="submit" class="submit-btn">💌 提交反馈</button>
+        </form>
+    </div>
+
+    {% if feedbacks %}
+    <section class="feedback-history">
+        <h2 class="section-title">📋 我的反馈记录</h2>
+        <div class="feedback-list">
+            {% for fb in feedbacks %}
+            <div class="feedback-item">
+                <div class="feedback-item-header">
+                    <h3>{{ fb.title }}</h3>
+                    <span class="feedback-item-date">{{ fb.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                <p class="feedback-item-content">{{ fb.content }}</p>
+                <div class="feedback-item-status">
+                    {% if fb.is_read %}
+                    <span class="status-read">✅ 已读</span>
+                    {% else %}
+                    <span class="status-pending">⏳ 待查看</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}

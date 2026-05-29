@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}{{ thread.title }}{% endblock %}
+{% block content %}
+<div class="thread-detail-container">
+    <!-- Thread Main -->
+    <div class="thread-detail-card">
+        <div class="thread-detail-header">
+            <div class="thread-breadcrumb">
+                <a href="{{ url_for('forum') }}">💬 交流区</a>
+                <span>›</span>
+                <span>{{ thread.title }}</span>
+            </div>
+            <div class="thread-detail-author-info">
+                <a href="{{ url_for('profile', username=thread.author.username) }}" class="thread-detail-author">
+                    👤 {{ thread.author.username }}
+                </a>
+                <span class="thread-detail-time">🕐 {{ thread.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                <span class="thread-detail-replies">💬 {{ thread.reply_count }} 条回复</span>
+            </div>
+        </div>
+
+        <div class="thread-detail-body">
+            <h1 class="thread-detail-title">{{ thread.title }}</h1>
+            <div class="thread-detail-content">
+                {{ thread.content | replace('\n', '<br>') | safe }}
+            </div>
+        </div>
+
+        <div class="thread-detail-actions">
+            {% if current_user.is_authenticated and current_user.id == thread.user_id %}
+            <form method="POST" action="{{ url_for('delete_thread', thread_id=thread.id) }}"
+                  onsubmit="return confirm('确定要删除这个帖子吗？')" style="display:inline">
+                <button type="submit" class="action-btn action-delete-sm">🗑️ 删除</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Replies -->
+    <div class="replies-section">
+        <h2 class="replies-title">💬 全部回复 ({{ replies|length }})</h2>
+
+        {% if current_user.is_authenticated %}
+        <form method="POST" action="{{ url_for('add_reply', thread_id=thread.id) }}" class="reply-form">
+            <textarea name="content" class="comment-input" rows="3" placeholder="写下你的回复～" required></textarea>
+            <button type="submit" class="comment-btn">💬 回复</button>
+        </form>
+        {% else %}
+        <div class="comment-login-hint">
+            <a href="{{ url_for('login') }}">登录</a> 后即可回复哦～
+        </div>
+        {% endif %}
+
+        <div class="replies-list">
+            {% for reply in replies %}
+            <div class="reply-item">
+                <div class="reply-header">
+                    <a href="{{ url_for('profile', username=reply.author.username) }}" class="reply-user">
+                        👤 {{ reply.author.username }}
+                    </a>
+                    <span class="reply-time">{{ reply.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                <div class="reply-body">{{ reply.content }}</div>
+            </div>
+            {% else %}
+            <div class="no-replies">
+                <p>还没有回复，快来抢沙发吧～ 🛋️</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

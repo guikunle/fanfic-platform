@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}交流区 💬{% endblock %}
+{% block content %}
+<div class="forum-container">
+    <div class="forum-header">
+        <div class="forum-header-left">
+            <h1 class="forum-title">💬 交流区</h1>
+            <p class="forum-subtitle">和星民们一起聊天讨论吧～</p>
+        </div>
+        <div class="forum-header-right">
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('create_thread') }}" class="create-thread-btn">📢 发帖</a>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if threads.items %}
+    <div class="thread-list">
+        {% for thread in threads.items %}
+        <a href="{{ url_for('thread_detail', thread_id=thread.id) }}" class="thread-item">
+            <div class="thread-main">
+                <h2 class="thread-title">{{ thread.title }}</h2>
+                <p class="thread-preview">{{ thread.content[:150] }}{% if thread.content|length > 150 %}...{% endif %}</p>
+            </div>
+            <div class="thread-meta">
+                <div class="thread-meta-top">
+                    <span class="thread-author">👤 {{ thread.author.username }}</span>
+                    <span class="thread-replies">💬 {{ thread.reply_count }}</span>
+                </div>
+                <span class="thread-time">🕐 {{ thread.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="pagination">
+        {% if threads.has_prev %}
+        <a href="{{ url_for('forum', page=threads.prev_num) }}" class="page-btn">← 上一页</a>
+        {% endif %}
+        <span class="page-info">第 {{ threads.page }} / {{ threads.pages }} 页</span>
+        {% if threads.has_next %}
+        <a href="{{ url_for('forum', page=threads.next_num) }}" class="page-btn">下一页 →</a>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">💬</div>
+        <h2>还没有帖子～</h2>
+        <p>快来发起第一个话题吧！</p>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('create_thread') }}" class="empty-btn">📢 发帖</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="empty-btn">🌸 登录后发帖</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

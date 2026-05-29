@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}注册 ✨{% endblock %}
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-icon">✨</div>
+        <h1 class="auth-title">加入星辰小窝</h1>
+        <p class="auth-subtitle">创建一个属于你的小星球</p>
+        <form method="POST" class="auth-form">
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" name="username" placeholder="2-20个字符，给自己起个名字吧～" required>
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" name="password" placeholder="至少4个字符..." required>
+            </div>
+            <div class="form-group">
+                <label>确认密码</label>
+                <input type="password" name="confirm" placeholder="再输入一次密码～" required>
+            </div>
+            <button type="submit" class="auth-btn">✨ 注册</button>
+        </form>
+        <p class="auth-switch">
+            已有账号？<a href="{{ url_for('login') }}">点我登录 🌸</a>
+        </p>
+        <a href="{{ url_for('home') }}" class="auth-back">← 返回首页</a>
+    </div>
+</div>
+{% endblock %}

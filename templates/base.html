@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星辰小窝 ✨ - {% block title %}同人创作分享平台{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+</head>
+<body>
+    {% if session.get('gate_passed') %}
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="{{ url_for('home') }}" class="nav-logo">✨ 星辰小窝</a>
+            <div class="nav-links">
+                <a href="{{ url_for('home') }}">🏠 首页</a>
+                <a href="{{ url_for('forum') }}">💬 交流区</a>
+                <a href="{{ url_for('feedback') }}">📝 反馈</a>
+                <a href="{{ url_for('search') }}">🔍 搜索</a>
+                {% if current_user.is_authenticated %}
+                <div class="nav-user-dropdown">
+                    <a href="#" class="nav-user-trigger">
+                        👤 {{ current_user.username }}
+                        <span class="dropdown-arrow">▼</span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="{{ url_for('profile', username=current_user.username) }}">📋 我的主页</a>
+                        <a href="{{ url_for('edit_profile') }}">⚙️ 编辑资料</a>
+                        <a href="{{ url_for('create_post') }}">✏️ 发布作品</a>
+                        <a href="{{ url_for('create_thread') }}">📢 发帖交流</a>
+                        <hr>
+                        <a href="{{ url_for('logout') }}" class="logout-link">🚪 退出登录</a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{{ url_for('login') }}">🔑 登录</a>
+                <a href="{{ url_for('register') }}" class="btn-register-nav">✨ 注册</a>
+                {% endif %}
+            </div>
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </nav>
+
+    <div class="mobile-menu-overlay" id="mobileMenu" onclick="toggleMobileMenu()">
+        <div class="mobile-menu-content" onclick="event.stopPropagation()">
+            <button class="mobile-close" onclick="toggleMobileMenu()">✕</button>
+            <a href="{{ url_for('home') }}" onclick="toggleMobileMenu()">🏠 首页</a>
+            <a href="{{ url_for('forum') }}" onclick="toggleMobileMenu()">💬 交流区</a>
+            <a href="{{ url_for('feedback') }}" onclick="toggleMobileMenu()">📝 反馈</a>
+            <a href="{{ url_for('search') }}" onclick="toggleMobileMenu()">🔍 搜索</a>
+            {% if current_user.is_authenticated %}
+            <hr>
+            <a href="{{ url_for('profile', username=current_user.username) }}" onclick="toggleMobileMenu()">📋 我的主页</a>
+            <a href="{{ url_for('edit_profile') }}" onclick="toggleMobileMenu()">⚙️ 编辑资料</a>
+            <a href="{{ url_for('create_post') }}" onclick="toggleMobileMenu()">✏️ 发布作品</a>
+            <a href="{{ url_for('create_thread') }}" onclick="toggleMobileMenu()">📢 发帖交流</a>
+            <hr>
+            <a href="{{ url_for('logout') }}" onclick="toggleMobileMenu()" class="logout-link">🚪 退出登录</a>
+            {% else %}
+            <hr>
+            <a href="{{ url_for('login') }}" onclick="toggleMobileMenu()">🔑 登录</a>
+            <a href="{{ url_for('register') }}" onclick="toggleMobileMenu()">✨ 注册</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <main class="main-content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}">
+                {{ message }}
+                <button class="flash-close" onclick="this.parentElement.remove()">✕</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    {% if session.get('gate_passed') %}
+    <footer class="footer">
+        <div class="footer-inner">
+            <p>✨ 星辰小窝 · 同人创作分享平台 ✨</p>
+            <p class="footer-sub">用爱发电 · 快乐吃粮</p>
+        </div>
+    </footer>
+    {% endif %}
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

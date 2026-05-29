@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{% if is_edit %}编辑作品{% else %}发布作品{% endif %} ✏️{% endblock %}
+{% block content %}
+<div class="create-form-container">
+    <div class="create-form-card">
+        <h1 class="create-form-title">
+            {% if is_edit %}✏️ 编辑作品{% else %}✨ 发布新作品{% endif %}
+        </h1>
+        <form method="POST" enctype="multipart/form-data" class="create-form">
+            <div class="form-group">
+                <label>作品类型</label>
+                <div class="radio-group">
+                    {% for pt in post_types %}
+                    <label class="radio-label">
+                        <input type="radio" name="post_type" value="{{ pt }}"
+                               {% if post and post.post_type == pt %}checked{% endif %}
+                               {% if not is_edit and loop.first %}checked{% endif %} required>
+                        <span class="radio-custom">
+                            {% if pt == '捡手机' %}📱{% elif pt == '同人文' %}📖{% elif pt == '同人图' %}🎨{% endif %}
+                            {{ pt }}
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>分类</label>
+                <select name="category" class="form-select" required>
+                    <option value="">— 请选择分类 —</option>
+                    {% for sub in subcategories %}
+                    <option value="{{ sub }}" {% if post and post.category == sub %}selected{% endif %}>{{ sub }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>标题</label>
+                <input type="text" name="title" class="form-input" placeholder="给你的作品起个名字吧～"
+                       value="{{ post.title if post else '' }}" required>
+            </div>
+
+            <div class="form-group">
+                <label>内容 <span class="label-hint">（可选，同人图也可不填~）</span></label>
+                <textarea name="content" class="form-textarea" rows="8" placeholder="写下你的作品内容…&#10;支持纯文本，换行会保留哦～">{{ post.content if post else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>上传图片 <span class="label-hint">（可选，支持 JPG/PNG/GIF，最大 16MB）</span></label>
+                <div class="file-upload-wrapper">
+                    <div class="file-upload-area" onclick="document.getElementById('fileInput').click()">
+                        <span class="file-upload-icon">📷</span>
+                        <span class="file-upload-text">点击选择图片</span>
+                        <span class="file-upload-hint" id="fileHint">未选择文件</span>
+                    </div>
+                    <input type="file" id="fileInput" name="image" accept="image/*" onchange="updateFileHint(this)">
+                </div>
+                {% if post and post.image_path %}
+                <div class="current-image">
+                    <span>当前图片：</span>
+                    <img src="{{ url_for('uploaded_file', filename=post.image_path) }}" alt="preview" class="current-image-preview">
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">
+                    {% if is_edit %}✅ 保存修改{% else %}✨ 发布作品{% endif %}
+                </button>
+                <a href="javascript:history.back()" class="cancel-btn">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

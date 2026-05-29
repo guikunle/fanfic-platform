@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}编辑资料 ⚙️{% endblock %}
+{% block content %}
+<div class="create-form-container">
+    <div class="create-form-card">
+        <h1 class="create-form-title">⚙️ 编辑个人资料</h1>
+        <form method="POST" enctype="multipart/form-data" class="create-form">
+            <div class="form-group">
+                <label>用户名</label>
+                <div class="readonly-field">{{ current_user.username }}</div>
+                <p class="field-hint">用户名暂不支持修改哦～</p>
+            </div>
+
+            <div class="form-group">
+                <label>个人简介</label>
+                <textarea name="bio" class="form-textarea" rows="4" placeholder="介绍一下自己吧～">{{ current_user.bio }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label>更换头像</label>
+                <div class="avatar-edit-section">
+                    <div class="avatar-edit-preview">
+                        {% if current_user.avatar and current_user.avatar != 'default_avatar.png' %}
+                        <img src="{{ url_for('uploaded_file', filename=current_user.avatar) }}" alt="current avatar">
+                        {% else %}
+                        <div class="profile-avatar-default profile-avatar-lg">{{ current_user.username[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="file-upload-wrapper">
+                        <div class="file-upload-area file-upload-area-sm" onclick="document.getElementById('avatarInput').click()">
+                            <span>📷 点击更换头像</span>
+                        </div>
+                        <input type="file" id="avatarInput" name="avatar" accept="image/*" onchange="previewAvatar(this)" style="display:none">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">✅ 保存修改</button>
+                <a href="{{ url_for('profile', username=current_user.username) }}" class="cancel-btn">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

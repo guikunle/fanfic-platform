@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}暗号入口 🔐{% endblock %}
+{% block content %}
+<div class="gate-container">
+    <div class="gate-card">
+        <div class="gate-icon">🔐</div>
+        <h1 class="gate-title">星辰小窝</h1>
+        <p class="gate-subtitle">✨ 同人创作分享平台 ✨</p>
+        <div class="gate-divider"></div>
+        <p class="gate-hint">进入之前，请回答一个小问题～</p>
+        <form method="POST" class="gate-form">
+            <label class="gate-question">{{ question }}</label>
+            <input type="text" name="answer" class="gate-input" placeholder="输入你的答案..." required autocomplete="off">
+            <button type="submit" class="gate-btn">✨ 进入星辰小窝</button>
+        </form>
+        <p class="gate-footer-text">提示：想一想这个平台是什么时候开始的呢？💭</p>
+    </div>
+</div>
+{% endblock %}

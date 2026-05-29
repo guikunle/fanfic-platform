@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block title %}{{ post_type }} · 分类浏览{% endblock %}
+{% block content %}
+<div class="category-container">
+    <div class="category-header">
+        <h1 class="category-title">
+            {% if post_type == '捡手机' %}📱
+            {% elif post_type == '同人文' %}📖
+            {% elif post_type == '同人图' %}🎨
+            {% endif %}
+            {{ post_type }}
+        </h1>
+
+        <!-- Subcategory filter tabs -->
+        <div class="subcategory-tabs subcategory-tabs-lg">
+            <a href="{{ url_for('browse_type', post_type=post_type) }}"
+               class="sub-tab {% if not current_category %}active{% endif %}">全部</a>
+            {% for sub in subcategories %}
+            <a href="{{ url_for('browse_type', post_type=post_type, category=sub) }}"
+               class="sub-tab {% if current_category == sub %}active{% endif %}">{{ sub }}</a>
+            {% endfor %}
+        </div>
+
+        <!-- Sort options -->
+        <div class="sort-options">
+            <a href="{{ url_for('browse_type', post_type=post_type, category=current_category, sort='newest') }}"
+               class="sort-btn {% if sort == 'newest' %}active{% endif %}">最新</a>
+            <a href="{{ url_for('browse_type', post_type=post_type, category=current_category, sort='views') }}"
+               class="sort-btn {% if sort == 'views' %}active{% endif %}">最热</a>
+            <a href="{{ url_for('browse_type', post_type=post_type, category=current_category, sort='oldest') }}"
+               class="sort-btn {% if sort == 'oldest' %}active{% endif %}">最早</a>
+        </div>
+    </div>
+
+    {% if posts.items %}
+    <div class="post-grid post-grid-lg">
+        {% for post in posts.items %}
+        <a href="{{ url_for('post_detail', post_id=post.id) }}" class="post-card">
+            {% if post.image_path %}
+            <div class="post-card-img">
+                <img src="{{ url_for('uploaded_file', filename=post.image_path) }}" alt="{{ post.title }}">
+            </div>
+            {% elif post_type == '同人图' %}
+            <div class="post-card-img post-card-img-placeholder">
+                <span>🎨</span>
+            </div>
+            {% else %}
+            <div class="post-card-img post-card-img-placeholder">
+                <span>📝</span>
+            </div>
+            {% endif %}
+            <div class="post-card-body">
+                <span class="post-card-category">{{ post.category }}</span>
+                <h3 class="post-card-title">{{ post.title }}</h3>
+                <div class="post-card-meta">
+                    <span>👤 {{ post.author.username }}</span>
+                    <span>👁️ {{ post.views }}</span>
+                    <span>💬 {{ post.comments.count() }}</span>
+                </div>
+                <span class="post-card-date">🕐 {{ post.created_at.strftime('%Y-%m-%d') }}</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+        {% if posts.has_prev %}
+        <a href="{{ url_for('browse_type', post_type=post_type, category=current_category, page=posts.prev_num, sort=sort) }}"
+           class="page-btn">← 上一页</a>
+        {% endif %}
+        <span class="page-info">第 {{ posts.page }} / {{ posts.pages }} 页</span>
+        {% if posts.has_next %}
+        <a href="{{ url_for('browse_type', post_type=post_type, category=current_category, page=posts.next_num, sort=sort) }}"
+           class="page-btn">下一页 →</a>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            {% if current_category %}
+            📭
+            {% else %}
+            📝
+            {% endif %}
+        </div>
+        <h2>这里还没有作品～</h2>
+        <p>
+            {% if current_category %}
+            还没有「{{ current_category }}」分类下的 {{ post_type }} 作品
+            {% else %}
+            还没有任何 {{ post_type }} 作品
+            {% endif %}
+        </p>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('create_post') }}" class="empty-btn">✏️ 发布第一篇</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="empty-btn">🌸 登录后发布</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

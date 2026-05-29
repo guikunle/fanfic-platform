@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}首页 🏠{% endblock %}
+{% block content %}
+<div class="home-container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">✨ 星辰小窝</h1>
+            <p class="hero-subtitle">同人创作分享平台 · 用爱发电，快乐吃粮</p>
+            <div class="hero-stats">
+                <span>👥 {{ total_users }} 位星民</span>
+                <span>📖 {{ total_posts }} 篇作品</span>
+                <span>💬 {{ total_threads }} 条讨论</span>
+            </div>
+            {% if not current_user.is_authenticated %}
+            <div class="hero-actions">
+                <a href="{{ url_for('register') }}" class="hero-btn-primary">✨ 加入我们</a>
+                <a href="{{ url_for('login') }}" class="hero-btn-secondary">🌸 登录</a>
+            </div>
+            {% else %}
+            <div class="hero-actions">
+                <a href="{{ url_for('create_post') }}" class="hero-btn-primary">✏️ 发布作品</a>
+                <a href="{{ url_for('create_thread') }}" class="hero-btn-secondary">💬 发起讨论</a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Quick Category Nav -->
+    <section class="category-quick-nav">
+        {% for pt in post_types %}
+        <a href="{{ url_for('browse_type', post_type=pt) }}" class="category-chip">
+            {% if pt == '捡手机' %}📱
+            {% elif pt == '同人文' %}📖
+            {% elif pt == '同人图' %}🎨
+            {% endif %}
+            {{ pt }}
+        </a>
+        {% endfor %}
+    </section>
+
+    <!-- Content by Type -->
+    {% for pt in post_types %}
+    <section class="section-card">
+        <div class="section-header">
+            <h2 class="section-title">
+                {% if pt == '捡手机' %}📱
+                {% elif pt == '同人文' %}📖
+                {% elif pt == '同人图' %}🎨
+                {% endif %}
+                {{ pt }}
+            </h2>
+            <a href="{{ url_for('browse_type', post_type=pt) }}" class="section-more">查看全部 →</a>
+        </div>
+
+        <!-- Subcategory tabs -->
+        <div class="subcategory-tabs">
+            <a href="{{ url_for('browse_type', post_type=pt) }}" class="sub-tab">全部</a>
+            {% for sub in subcategories %}
+            <a href="{{ url_for('browse_type', post_type=pt, category=sub) }}" class="sub-tab">{{ sub }}</a>
+            {% endfor %}
+        </div>
+
+        <div class="post-grid">
+            {% set type_posts = posts_by_type.get(pt, []) %}
+            {% if type_posts %}
+                {% for post in type_posts %}
+                <a href="{{ url_for('post_detail', post_id=post.id) }}" class="post-card">
+                    {% if post.image_path %}
+                    <div class="post-card-img">
+                        <img src="{{ url_for('uploaded_file', filename=post.image_path) }}" alt="{{ post.title }}">
+                    </div>
+                    {% elif pt == '同人图' %}
+                    <div class="post-card-img post-card-img-placeholder">
+                        <span>🎨</span>
+                    </div>
+                    {% else %}
+                    <div class="post-card-img post-card-img-placeholder">
+                        <span>📝</span>
+                    </div>
+                    {% endif %}
+                    <div class="post-card-body">
+                        <span class="post-card-category">{{ post.category }}</span>
+                        <h3 class="post-card-title">{{ post.title }}</h3>
+                        <div class="post-card-meta">
+                            <span>👤 {{ post.author.username }}</span>
+                            <span>👁️ {{ post.views }}</span>
+                            <span>💬 {{ post.comments.count() }}</span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="empty-section">
+                    <p>还没有 {{ pt }} 作品哦～快来发表第一篇吧！</p>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('create_post') }}" class="btn-small">✏️ 发布作品</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </section>
+    {% endfor %}
+
+    <!-- Latest Forum Threads -->
+    <section class="section-card">
+        <div class="section-header">
+            <h2 class="section-title">💬 最新讨论</h2>
+            <a href="{{ url_for('forum') }}" class="section-more">进入交流区 →</a>
+        </div>
+        {% if latest_threads %}
+        <div class="forum-preview-list">
+            {% for thread in latest_threads %}
+            <a href="{{ url_for('thread_detail', thread_id=thread.id) }}" class="forum-preview-item">
+                <div class="forum-preview-title">{{ thread.title }}</div>
+                <div class="forum-preview-meta">
+                    <span>👤 {{ thread.author.username }}</span>
+                    <span>💬 {{ thread.reply_count }}</span>
+                    <span>🕐 {{ thread.created_at.strftime('%m-%d %H:%M') }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-section">
+            <p>还没有讨论帖，快来发起第一个话题吧！</p>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('create_thread') }}" class="btn-small">📢 发帖</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

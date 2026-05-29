@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+{% block content %}
+<div class="post-detail-container">
+    <div class="post-detail-card">
+        <!-- Breadcrumb -->
+        <div class="post-breadcrumb">
+            <a href="{{ url_for('home') }}">🏠 首页</a>
+            <span>›</span>
+            <a href="{{ url_for('browse_type', post_type=post.post_type) }}">
+                {% if post.post_type == '捡手机' %}📱{% elif post.post_type == '同人文' %}📖{% elif post.post_type == '同人图' %}🎨{% endif %}
+                {{ post.post_type }}
+            </a>
+            <span>›</span>
+            <a href="{{ url_for('browse_type', post_type=post.post_type, category=post.category) }}">{{ post.category }}</a>
+        </div>
+
+        <!-- Post Header -->
+        <div class="post-detail-header">
+            <h1 class="post-detail-title">{{ post.title }}</h1>
+            <div class="post-detail-meta">
+                <a href="{{ url_for('profile', username=post.author.username) }}" class="post-author-link">
+                    👤 {{ post.author.username }}
+                </a>
+                <span>📂 {{ post.category }}</span>
+                <span>🕐 {{ post.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                <span>👁️ {{ post.views }}</span>
+            </div>
+        </div>
+
+        <!-- Post Content -->
+        <div class="post-detail-body">
+            {% if post.image_path %}
+            <div class="post-detail-image">
+                <img src="{{ url_for('uploaded_file', filename=post.image_path) }}" alt="{{ post.title }}" onclick="openImageModal(this.src)">
+            </div>
+            {% endif %}
+
+            {% if post.content %}
+            <div class="post-detail-content">
+                {{ post.content | replace('\n', '<br>') | safe }}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Post Actions -->
+        {% if current_user.is_authenticated and current_user.id == post.user_id %}
+        <div class="post-detail-actions">
+            <a href="{{ url_for('edit_post', post_id=post.id) }}" class="action-btn action-edit">✏️ 编辑</a>
+            <form method="POST" action="{{ url_for('delete_post', post_id=post.id) }}" style="display:inline"
+                  onsubmit="return confirm('确定要删除这篇作品吗？删除后无法恢复哦～')">
+                <button type="submit" class="action-btn action-delete">🗑️ 删除</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Comments Section -->
+    <div class="comments-section">
+        <h2 class="comments-title">💬 评论 ({{ post.comments.count() }})</h2>
+
+        {% if current_user.is_authenticated %}
+        <form method="POST" action="{{ url_for('add_comment', post_id=post.id) }}" class="comment-form">
+            <textarea name="content" class="comment-input" rows="3" placeholder="写下你的感想吧～" required></textarea>
+            <button type="submit" class="comment-btn">💬 发表评论</button>
+        </form>
+        {% else %}
+        <div class="comment-login-hint">
+            <a href="{{ url_for('login') }}">登录</a> 后即可评论哦～
+        </div>
+        {% endif %}
+
+        <div class="comments-list">
+            {% set comments = post.comments.order_by(Comment.created_at.desc()).all() %}
+            {% for comment in comments %}
+            <div class="comment-item">
+                <div class="comment-header">
+                    <a href="{{ url_for('profile', username=comment.author.username) }}" class="comment-user">
+                        👤 {{ comment.author.username }}
+                    </a>
+                    <span class="comment-time">{{ comment.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+                <div class="comment-body">{{ comment.content }}</div>
+            </div>
+            {% else %}
+            <div class="no-comments">
+                <p>还没有评论，快来坐沙发吧～ 🛋️</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Related Posts -->
+    {% if related %}
+    <div class="related-section">
+        <h2 class="section-title">📂 更多「{{ post.category }}」作品</h2>
+        <div class="post-grid">
+            {% for r in related %}
+            <a href="{{ url_for('post_detail', post_id=r.id) }}" class="post-card post-card-sm">
+                {% if r.image_path %}
+                <div class="post-card-img">
+                    <img src="{{ url_for('uploaded_file', filename=r.image_path) }}" alt="{{ r.title }}">
+                </div>
+                {% else %}
+                <div class="post-card-img post-card-img-placeholder">
+                    <span>📝</span>
+                </div>
+                {% endif %}
+                <div class="post-card-body">
+                    <h3 class="post-card-title">{{ r.title }}</h3>
+                    <div class="post-card-meta">
+                        <span>👤 {{ r.author.username }}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Image Modal -->
+<div class="image-modal" id="imageModal" onclick="closeImageModal()">
+    <span class="image-modal-close">✕</span>
+    <img class="image-modal-content" id="modalImage">
+</div>
+{% endblock %}

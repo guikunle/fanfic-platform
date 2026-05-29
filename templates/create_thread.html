@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}发布帖子 📢{% endblock %}
+{% block content %}
+<div class="create-form-container">
+    <div class="create-form-card">
+        <h1 class="create-form-title">📢 发布新帖子</h1>
+        <p class="create-form-subtitle">和大家一起交流讨论吧～</p>
+        <form method="POST" class="create-form">
+            <div class="form-group">
+                <label>帖子标题</label>
+                <input type="text" name="title" class="form-input" placeholder="用一句话概括你的话题～" required>
+            </div>
+            <div class="form-group">
+                <label>帖子内容</label>
+                <textarea name="content" class="form-textarea" rows="8" placeholder="写下你想说的吧…&#10;可以讨论作品、求文、分享感受等等～" required></textarea>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="submit-btn">📢 发布帖子</button>
+                <a href="{{ url_for('forum') }}" class="cancel-btn">取消</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

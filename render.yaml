@@ -1,0 +1,40 @@
+# 星辰小窝 - Render 部署配置
+# 连接你的 GitHub 仓库后，Render 会自动部署
+
+services:
+  # Web 服务（Flask 应用）
+  - type: web
+    name: fanfic-platform
+    runtime: python
+    repo: https://github.com/guikunle/fanfic-platform
+    plan: free
+    region: singapore  # 新加坡节点，国内访问速度较好
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    healthCheckPath: /home
+
+    envVarGroups:
+      - flask-config
+
+    # 自动创建的 PostgreSQL 数据库
+    databases:
+      - name: fanfic-db
+        databaseName: fanfic
+        plan: free
+
+  # 定时唤醒（防止免费版休眠，可选）
+  # - type: cron
+  #   name: keep-awake
+  #   schedule: "*/10 * * * *"  # 每10分钟ping一次
+  #   buildCommand: ""
+  #   startCommand: curl -s https://你的应用名.onrender.com/home > /dev/null
+
+envVarGroups:
+  - name: flask-config
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true  # 自动生成安全的密钥
+      - key: FLASK_DEBUG
+        value: "0"
+      - key: PYTHONUNBUFFERED
+        value: "1"
