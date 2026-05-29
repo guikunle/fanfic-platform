@@ -1,5 +1,9 @@
 import os
 import uuid
+import smtplib
+import threading
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
 from flask import (
@@ -137,9 +141,58 @@ class ForumReply(db.Model):
     thread_id = db.Column(db.Integer, db.ForeignKey('forum_threads.id'), nullable=False)
 
 
-# ── Gate Secret ──
-GATE_QUESTION = '公开日是？'
-GATE_ANSWER = '10月06日'
+class QuizAnswer(db.Model):
+    """Store Q5 answers from the entry quiz."""
+    __tablename__ = 'quiz_answers'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), nullable=True)
+    answer = db.Column(db.Text, nullable=False)
+    submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_emailed = db.Column(db.Boolean, default=False)
+
+
+# ── Quiz Questions ──
+QUIZ_QUESTIONS = [
+    {
+        'id': 1,
+        'question': '🌟 神秘数字',
+        'hint': '提示：6位的数字是什么呢？',
+        'answer': '271199',
+        'type': 'text',
+    },
+    {
+        'id': 2,
+        'question': '🎂 王橹杰&穆祉丞的生日',
+        'hint': '提示：包含年份填数字，中间用 & 隔开，如：20100108&20071116',
+        'answer': '20100108&20071116',
+        'type': 'text',
+    },
+    {
+        'id': 3,
+        'question': '🖼️ 壁纸曝光日期',
+        'hint': '提示：包含年份，如：20250215',
+        'answer': '20250215',
+        'type': 'text',
+    },
+    {
+        'id': 4,
+        'question': '🎭 天魔舞台是那天',
+        'hint': '提示：包含年份，如：20051227',
+        'answer': '20051227',
+        'type': 'text',
+    },
+    {
+        'id': 5,
+        'question': '💌 想对橹穆说的话',
+        'hint': '写下你想对他们说的话吧～任何回答都可以通过哦！',
+        'answer': None,  # No correct answer - everyone passes
+        'type': 'textarea',
+    },
+]
+
+# ── QQ Email Config ──
+QQ_EMAIL = '1277514073@qq.com'
+QQ_AUTH_CODE = 'fosnhjwkuwhtbaci'
 
 
 # ── Helper Functions ──
@@ -181,22 +234,117 @@ def check_gate():
 
 # ── Routes ──
 
-# ── Gate (Entry) ──
+# ── Gate (Quiz) ──
 @app.route('/', methods=['GET', 'POST'])
 def gate():
     if check_gate():
         return redirect(url_for('home'))
 
     if request.method == 'POST':
-        answer = request.form.get('answer', '').strip()
-        if answer == GATE_ANSWER:
+        errors = []
+        q5_answer = None
+        all_correct = True
+
+        for q in QUIZ_QUESTIONS:
+            qid = str(q['id'])
+            user_answer = request.form.get(f'q{qid}', '').strip()
+
+            if q['answer'] is not None:
+                # Q1-Q4: check answer
+                if user_answer != q['answer']:
+                    errors.append(qid)
+                    all_correct = False
+            else:
+                # Q5: save answer, everyone passes
+                q5_answer = user_answer
+
+        if all_correct:
             session['gate_passed'] = True
-            flash('暗号正确！欢迎来到星辰小窝 ✨', 'success')
+
+            # Save Q5 answer if provided
+            if q5_answer:
+                username = None
+                answer_entry = QuizAnswer(
+                    username=username,
+                    answer=q5_answer,
+                )
+                db.session.add(answer_entry)
+                db.session.commit()
+
+            flash('🎉 全部答对！欢迎来到橹穆温暖小宇宙 🌌', 'success')
             return redirect(url_for('home'))
         else:
-            flash('暗号不对哦，再想想？💭', 'error')
+            error_hints = []
+            for e in errors:
+                q = QUIZ_QUESTIONS[int(e) - 1]
+                error_hints.append(f'第{q["id"]}题「{q["question"]}」不对哦，再想想～💭')
+            flash(' | '.join(error_hints), 'error')
 
-    return render_template('gate.html', question=GATE_QUESTION)
+    return render_template('gate.html', questions=QUIZ_QUESTIONS)
+
+
+# ── Email: Send Q5 answers ──
+def send_q5_answers_email():
+    """Compile unanswered Q5 answers and send to QQ email."""
+    answers = QuizAnswer.query.filter_by(is_emailed=False).order_by(QuizAnswer.submitted_at.asc()).all()
+    if not answers:
+        return False, '没有新的Q5答案需要发送'
+
+    # Build email content
+    now_str = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+    lines = [
+        f'📬 橹穆温暖小宇宙 · Q5问卷答案汇总',
+        f'生成时间：{now_str}',
+        f'共 {len(answers)} 条新回答',
+        '',
+        '═' * 40,
+    ]
+
+    for i, ans in enumerate(answers, 1):
+        submit_time = ans.submitted_at.strftime('%m-%d %H:%M') if ans.submitted_at else '未知'
+        username = ans.username or '匿名小青梅果儿'
+        lines.extend([
+            f'--- 第{i}条 ---',
+            f'提交者：{username}',
+            f'时间：{submit_time}',
+            f'内容：{ans.answer}',
+            '',
+        ])
+
+    lines.append('═' * 40)
+    lines.append('— 来自橹穆温暖小宇宙自动发送 💌')
+
+    body = '\n'.join(lines)
+
+    try:
+        msg = MIMEText(body, 'plain', 'utf-8')
+        msg['Subject'] = f'📬 橹穆温暖小宇宙 Q5 新答案汇总 ({len(answers)}条)'
+        msg['From'] = QQ_EMAIL
+        msg['To'] = QQ_EMAIL
+
+        with smtplib.SMTP_SSL('smtp.qq.com', 465) as server:
+            server.login(QQ_EMAIL, QQ_AUTH_CODE)
+            server.sendmail(QQ_EMAIL, [QQ_EMAIL], msg.as_string())
+
+        # Mark as sent
+        for ans in answers:
+            ans.is_emailed = True
+        db.session.commit()
+
+        return True, f'✅ 成功发送 {len(answers)} 条Q5答案到 {QQ_EMAIL}'
+    except Exception as e:
+        return False, f'发送失败：{str(e)}'
+
+
+@app.route('/send-q5-answers')
+def send_q5():
+    """Admin endpoint to trigger Q5 answer email."""
+    success, msg = send_q5_answers_email()
+    if success:
+        flash(msg, 'success')
+    else:
+        flash(msg, 'error')
+    return redirect(url_for('home'))
 
 
 # ── Auth ──

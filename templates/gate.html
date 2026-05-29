@@ -1,19 +1,43 @@
 {% extends "base.html" %}
-{% block title %}暗号入口 🔐{% endblock %}
+{% block title %}入口问卷 🌌{% endblock %}
 {% block content %}
 <div class="gate-container">
     <div class="gate-card">
-        <div class="gate-icon">🔐</div>
-        <h1 class="gate-title">星辰小窝</h1>
+        <div class="gate-icon">🌌</div>
+        <h1 class="gate-title">橹穆温暖小宇宙</h1>
         <p class="gate-subtitle">✨ 同人创作分享平台 ✨</p>
         <div class="gate-divider"></div>
-        <p class="gate-hint">进入之前，请回答一个小问题～</p>
-        <form method="POST" class="gate-form">
-            <label class="gate-question">{{ question }}</label>
-            <input type="text" name="answer" class="gate-input" placeholder="输入你的答案..." required autocomplete="off">
-            <button type="submit" class="gate-btn">✨ 进入星辰小窝</button>
+        <p class="gate-hint">💫 进入之前，先来答几道关于橹穆的小问卷吧～</p>
+        <p class="gate-hint-sub">全部答对五道题即可进入哦！第5题任何回答都有效 💌</p>
+
+        <form method="POST" class="quiz-form">
+            {% for q in questions %}
+            <div class="quiz-question">
+                <div class="quiz-q-header">
+                    <span class="quiz-q-num">{{ q.id }}</span>
+                    <span class="quiz-q-label">{{ q.question }}</span>
+                </div>
+
+                {% if q.type == 'textarea' %}
+                <textarea name="q{{ q.id }}" class="quiz-textarea" rows="3"
+                          placeholder="{{ q.hint }}"></textarea>
+                {% else %}
+                <input type="text" name="q{{ q.id }}" class="quiz-input"
+                       placeholder="{{ q.hint }}" autocomplete="off">
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="quiz-progress">
+                <span>完成所有题目即可进入 ✨</span>
+            </div>
+
+            <button type="submit" class="gate-btn">🌟 进入橹穆温暖小宇宙</button>
         </form>
-        <p class="gate-footer-text">提示：想一想这个平台是什么时候开始的呢？💭</p>
+
+        <p class="gate-footer-text">
+            💡 做完题别忘了点上面的按钮哦～
+        </p>
     </div>
 </div>
 {% endblock %}

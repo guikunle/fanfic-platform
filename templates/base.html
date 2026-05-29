@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>星辰小窝 ✨ - {% block title %}同人创作分享平台{% endblock %}</title>
+    <title>橹穆温暖小宇宙 🌌 - {% block title %}同人创作分享平台{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
 </head>
@@ -11,7 +11,7 @@
     {% if session.get('gate_passed') %}
     <nav class="navbar">
         <div class="nav-inner">
-            <a href="{{ url_for('home') }}" class="nav-logo">✨ 星辰小窝</a>
+            <a href="{{ url_for('home') }}" class="nav-logo">🌌 橹穆温暖小宇宙</a>
             <div class="nav-links">
                 <a href="{{ url_for('home') }}">🏠 首页</a>
                 <a href="{{ url_for('forum') }}">💬 交流区</a>
@@ -85,7 +85,7 @@
     {% if session.get('gate_passed') %}
     <footer class="footer">
         <div class="footer-inner">
-            <p>✨ 星辰小窝 · 同人创作分享平台 ✨</p>
+            <p>🌌 橹穆温暖小宇宙 · 同人创作分享平台 🌌</p>
             <p class="footer-sub">用爱发电 · 快乐吃粮</p>
         </div>
     </footer>

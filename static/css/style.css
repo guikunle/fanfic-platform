@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════
-   🌸 星辰小窝 · 蓝粉主题
+   🌌 橹穆温暖小宇宙 · 蓝粉主题
    ═══════════════════════════════════ */
 
 /* ── CSS Variables ── */
@@ -422,9 +422,102 @@ a:hover {
 }
 
 .gate-footer-text {
-    margin-top: 16px;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-light);
+}
+
+/* ── Quiz Gate ── */
+.quiz-form {
+    width: 100%;
+    max-width: 520px;
+    margin: 1rem auto;
+}
+
+.quiz-question {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 0.8rem;
+    text-align: left;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.quiz-question:focus-within {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(244, 143, 177, 0.15);
+}
+
+.quiz-q-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.5rem;
+}
+
+.quiz-q-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
     font-size: 0.8rem;
-    color: var(--text-muted);
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.quiz-q-label {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text);
+}
+
+.quiz-input {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.quiz-input:focus {
+    border-color: var(--primary);
+}
+
+.quiz-textarea {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    resize: vertical;
+    min-height: 70px;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.quiz-textarea:focus {
+    border-color: var(--primary);
+}
+
+.quiz-progress {
+    text-align: center;
+    margin: 0.8rem 0;
+    font-size: 0.85rem;
+    color: var(--text-light);
 }
 
 /* ═══════════════════════════════════
