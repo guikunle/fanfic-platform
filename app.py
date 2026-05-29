@@ -286,6 +286,9 @@ def home():
         ForumThread.created_at.desc()
     ).limit(5).all()
 
+    # Hot posts (most viewed)
+    hot_posts = Post.query.order_by(Post.views.desc()).limit(6).all()
+
     # Stats
     total_users = User.query.count()
     total_posts = Post.query.count()
@@ -294,6 +297,7 @@ def home():
     return render_template(
         'index.html',
         latest_posts=latest_posts,
+        hot_posts=hot_posts,
         posts_by_type=posts_by_type,
         latest_threads=latest_threads,
         total_users=total_users,

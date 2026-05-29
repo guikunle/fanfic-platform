@@ -2,22 +2,36 @@
 {% block title %}首页 🏠{% endblock %}
 {% block content %}
 <div class="home-container">
-    <!-- Hero Section -->
+    <!-- ===== Hero Section ===== -->
     <section class="hero-section">
+        <div class="hero-bg-decor">
+            <div class="hero-circle c1"></div>
+            <div class="hero-circle c2"></div>
+            <div class="hero-circle c3"></div>
+        </div>
         <div class="hero-content">
-            <h1 class="hero-title">✨ 星辰小窝</h1>
-            <p class="hero-subtitle">同人创作分享平台 · 用爱发电，快乐吃粮</p>
-            <div class="hero-stats">
-                <span>👥 {{ total_users }} 位星民</span>
-                <span>📖 {{ total_posts }} 篇作品</span>
-                <span>💬 {{ total_threads }} 条讨论</span>
-            </div>
             {% if not current_user.is_authenticated %}
+            <div class="hero-greeting">欢迎来到</div>
+            <h1 class="hero-title">星辰小窝</h1>
+            <p class="hero-subtitle">用爱发电，快乐吃粮 · 同人创作分享平台</p>
+            <div class="hero-stats">
+                <span><strong>{{ total_users }}</strong> 位星民</span>
+                <span><strong>{{ total_posts }}</strong> 篇作品</span>
+                <span><strong>{{ total_threads }}</strong> 条讨论</span>
+            </div>
             <div class="hero-actions">
                 <a href="{{ url_for('register') }}" class="hero-btn-primary">✨ 加入我们</a>
                 <a href="{{ url_for('login') }}" class="hero-btn-secondary">🌸 登录</a>
             </div>
             {% else %}
+            <div class="hero-greeting">✨ 欢迎回来</div>
+            <h1 class="hero-title">{{ current_user.username }}</h1>
+            <p class="hero-subtitle">今天想创作点什么？</p>
+            <div class="hero-stats">
+                <span><strong>{{ total_users }}</strong> 位星民</span>
+                <span><strong>{{ total_posts }}</strong> 篇作品</span>
+                <span><strong>{{ total_threads }}</strong> 条讨论</span>
+            </div>
             <div class="hero-actions">
                 <a href="{{ url_for('create_post') }}" class="hero-btn-primary">✏️ 发布作品</a>
                 <a href="{{ url_for('create_thread') }}" class="hero-btn-secondary">💬 发起讨论</a>
@@ -26,20 +40,68 @@
         </div>
     </section>
 
-    <!-- Quick Category Nav -->
-    <section class="category-quick-nav">
-        {% for pt in post_types %}
-        <a href="{{ url_for('browse_type', post_type=pt) }}" class="category-chip">
-            {% if pt == '捡手机' %}📱
-            {% elif pt == '同人文' %}📖
-            {% elif pt == '同人图' %}🎨
+    <!-- ===== Quick Category Nav ===== -->
+    <section class="quick-nav-bar">
+        <div class="quick-nav-inner">
+            <a href="{{ url_for('browse_type', post_type='捡手机') }}" class="qn-item">
+                <span class="qn-icon">📱</span>
+                <span class="qn-label">捡手机</span>
+            </a>
+            <a href="{{ url_for('browse_type', post_type='同人文') }}" class="qn-item">
+                <span class="qn-icon">📖</span>
+                <span class="qn-label">同人文</span>
+            </a>
+            <a href="{{ url_for('browse_type', post_type='同人图') }}" class="qn-item">
+                <span class="qn-icon">🎨</span>
+                <span class="qn-label">同人图</span>
+            </a>
+            <a href="{{ url_for('forum') }}" class="qn-item">
+                <span class="qn-icon">💬</span>
+                <span class="qn-label">交流区</span>
+            </a>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('profile', username=current_user.username) }}" class="qn-item">
+                <span class="qn-icon">👤</span>
+                <span class="qn-label">我的</span>
+            </a>
             {% endif %}
-            {{ pt }}
-        </a>
-        {% endfor %}
+        </div>
     </section>
 
-    <!-- Content by Type -->
+    <!-- ===== Hot Posts ===== -->
+    {% if hot_posts %}
+    <section class="section-card">
+        <div class="section-header">
+            <h2 class="section-title">🔥 热门作品</h2>
+            <a href="{{ url_for('search') }}" class="section-more">发现更多 →</a>
+        </div>
+        <div class="post-grid post-grid-hot">
+            {% for post in hot_posts %}
+            <a href="{{ url_for('post_detail', post_id=post.id) }}" class="hot-card">
+                <div class="hot-card-rank">#{{ loop.index }}</div>
+                {% if post.image_path %}
+                <div class="hot-card-img">
+                    <img src="{{ url_for('uploaded_file', filename=post.image_path) }}" alt="{{ post.title }}">
+                </div>
+                {% endif %}
+                <div class="hot-card-body">
+                    <div class="hot-card-tags">
+                        <span class="hc-tag-type">{{ post.post_type }}</span>
+                        <span class="hc-tag-cat">{{ post.category }}</span>
+                    </div>
+                    <h3 class="hot-card-title">{{ post.title }}</h3>
+                    <div class="hot-card-meta">
+                        <span>👤 {{ post.author.username }}</span>
+                        <span>👁️ {{ post.views }}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- ===== Content by Type ===== -->
     {% for pt in post_types %}
     <section class="section-card">
         <div class="section-header">
@@ -53,7 +115,6 @@
             <a href="{{ url_for('browse_type', post_type=pt) }}" class="section-more">查看全部 →</a>
         </div>
 
-        <!-- Subcategory tabs -->
         <div class="subcategory-tabs">
             <a href="{{ url_for('browse_type', post_type=pt) }}" class="sub-tab">全部</a>
             {% for sub in subcategories %}
@@ -85,7 +146,6 @@
                         <div class="post-card-meta">
                             <span>👤 {{ post.author.username }}</span>
                             <span>👁️ {{ post.views }}</span>
-                            <span>💬 {{ post.comments.count() }}</span>
                         </div>
                     </div>
                 </a>
@@ -102,7 +162,7 @@
     </section>
     {% endfor %}
 
-    <!-- Latest Forum Threads -->
+    <!-- ===== Latest Forum Threads ===== -->
     <section class="section-card">
         <div class="section-header">
             <h2 class="section-title">💬 最新讨论</h2>
@@ -131,4 +191,27 @@
         {% endif %}
     </section>
 </div>
+
+<!-- ===== Floating Action Button ===== -->
+{% if current_user.is_authenticated %}
+<div class="fab-container">
+    <button class="fab-main" onclick="toggleFab()" id="fabBtn">
+        <span class="fab-icon-plus">+</span>
+    </button>
+    <div class="fab-menu" id="fabMenu">
+        <a href="{{ url_for('create_post') }}" class="fab-item" title="发布作品">
+            <span class="fab-item-icon">✏️</span>
+            <span class="fab-item-label">发布作品</span>
+        </a>
+        <a href="{{ url_for('create_thread') }}" class="fab-item" title="发起讨论">
+            <span class="fab-item-icon">💬</span>
+            <span class="fab-item-label">发起讨论</span>
+        </a>
+        <a href="{{ url_for('feedback') }}" class="fab-item" title="反馈">
+            <span class="fab-item-icon">📝</span>
+            <span class="fab-item-label">反馈</span>
+        </a>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

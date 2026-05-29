@@ -91,6 +91,48 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
+// ── Floating Action Button ──
+function toggleFab() {
+    const btn = document.getElementById('fabBtn');
+    const menu = document.getElementById('fabMenu');
+    btn.classList.toggle('active');
+    menu.classList.toggle('active');
+}
+
+// Close FAB menu when clicking outside
+document.addEventListener('click', function(e) {
+    const fab = document.querySelector('.fab-container');
+    if (fab && !fab.contains(e.target)) {
+        const btn = document.getElementById('fabBtn');
+        const menu = document.getElementById('fabMenu');
+        if (btn && btn.classList.contains('active')) {
+            btn.classList.remove('active');
+            menu.classList.remove('active');
+        }
+    }
+});
+
+// ── Scroll to Top Button ──
+document.addEventListener('DOMContentLoaded', function() {
+    const scrollBtn = document.createElement('button');
+    scrollBtn.className = 'scroll-top-btn';
+    scrollBtn.innerHTML = '↑';
+    scrollBtn.setAttribute('aria-label', '回到顶部');
+    document.body.appendChild(scrollBtn);
+
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 400) {
+            scrollBtn.classList.add('visible');
+        } else {
+            scrollBtn.classList.remove('visible');
+        }
+    });
+
+    scrollBtn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+});
+
 // ── Smooth Scroll for Anchor Links ──
 document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
