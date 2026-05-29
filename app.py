@@ -554,7 +554,9 @@ def post_detail(post_id):
         Post.id != post.id
     ).order_by(Post.created_at.desc()).limit(4).all()
 
-    return render_template('post_detail.html', post=post, related=related)
+    comments_list = post.comments.order_by(Comment.created_at.desc()).all()
+
+    return render_template('post_detail.html', post=post, related=related, comments_list=comments_list)
 
 
 @app.route('/post/<int:post_id>/edit', methods=['GET', 'POST'])

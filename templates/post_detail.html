@@ -71,7 +71,7 @@
         {% endif %}
 
         <div class="comments-list">
-            {% set comments = post.comments.order_by(post.comments.property.mapper.class_.created_at.desc()).all() %}
+            {% set comments = comments_list %}
             {% for comment in comments %}
             <div class="comment-item">
                 <div class="comment-header">
